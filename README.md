@@ -12,4 +12,4 @@ A ce stade, les données sont en PDF (avec les sources en tex), à terme des not
 
 Thèmes abordés :
 
-- Reconnaissance_langue.pdf : Reconnaissance de Langues dans un corpus multilingue (corpus_multi.zip
+1. Reconnaissance_langue.pdf : Reconnaissance de Langues dans un corpus multilingue (corpus_multi.zip)
