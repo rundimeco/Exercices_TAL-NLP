@@ -15,7 +15,10 @@ Pour chaque thème il y a un PDF (avec les sources en tex) ainsi que le notebook
 Thèmes abordés :
 
 1. Reconnaissance_langue.pdf : Reconnaissance de Langues dans un corpus multilingue (corpus_multi.zip, fourni dans ce dépôt). pré-requis :
- - toto
+ - chaînes de caractères
+ - listes et dictionnaires
+ - Boucle for et instructions conditionnelles
+ - Ouverture et écriture de fichiers
 2. To be continued
 
 ## Remerciements
