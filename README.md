@@ -18,7 +18,7 @@ Thèmes abordés :
  - chaînes de caractères
  - listes et dictionnaires
  - Boucle for et instructions conditionnelles
- - Ouverture et écriture de fichiers
+ - Lecture et écriture de fichiers
 2. To be continued
 
 ## Remerciements
