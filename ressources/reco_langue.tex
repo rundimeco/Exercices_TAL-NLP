@@ -1,12 +1,15 @@
  \vspace{0.5cm}
-                    
+
+\textbf{\textcolor{blue}{Attention, copier-coller à partir du PDF ne focntionnera pas, de nombreux caractères seront mal retranscrits créant ainsi un code non fonctionnel}}.
+
+
  Nous savons par la loi de Zipf que l'effectif des mots d'une langue suivait certaines lois de distribution.
  Nous pouvons exploiter ces propriétés pour calculer des "modèles de langue".
  Ces modèles de langue permettent d'identifier la langue d'un texte inconnu.
 
  Nous allons utiliser le \textbf{corpus parallèle} multilingue \textit{corpus\_multi.zip}
- Décompressez cette archive dans un dossier dédié. Il y a un sous-dossier pour chaque langue (22 langues en tout) et pour chaque langue un corpus d'apprentissage ("appr") et un corpus de test ("test").
- Dans un nouveau script Python (notebook ou autre), testez le code suivant (en vous plaçant au bon endroit):
+ Décompressez cette archive à l'endroit où vous avez positionné votre code (sans ajouter de dossier supplémentaire auquel cas les chemins montrés ici seraient systématiquement à modifier). Il y a un sous-dossier pour chaque langue (22 langues en tout) et pour chaque langue un corpus d'apprentissage ("appr") et un corpus de test ("test").
+ Dans un nouveau script Python (notebook ou autre), testez le code suivant (en vous plaçant au bon endroit)\footnote{Attention, ainsi que noté dans le code le séparateur de dossier n'est pas le même sur Windows et sur Linux/Mac, il vous faudra adapter votre code.}:
 
 \begin{python}
 import glob
@@ -14,7 +17,9 @@ liste_fichiers = glob.glob("corpus_multi/*/*/*")
 print("Nombre de fichiers : %i"%len(liste_fichiers)
 for chemin in liste_fichiers:
   print(chemin)
-  print(chemin.split("\\\\"))#Sur Linux/Mac: chemin.split("/")
+  print(chemin.split("\\\\"))#Sur windows
+  #NB: sur Windows on a plus rarement : chemin.split("\\")
+  #print(chemin.split("/"))#Sur Linux/Mac
   break#stoppe le code (provisoire)
 \end{python}
 
@@ -27,9 +32,18 @@ Observez le résultat du second print qui doit ressembler à :
 Ceci nous permettra d'exploiter la structure des dossiers pour faire des traitements efficaces.
 
 \vspace{0.5cm}
-\exer{Créer le modèle de langue (jeu de données \texttt{appr})}
+\exer{Créer le modèle de langue (jeu de données appr)}
 \vspace{0.5cm}
 
+Nous allons avoir besoin d'ouvrir chaque fichier en mode texte, à partir de son chemin. Ce qui peut être fait avec la petite fonction suivante\footnote{
+ NB: sur Linux ou MacOS, utf-8 est l'encoding par défaut donc on n'est pas obligé de le préciser. Par contre sur Windows, ne pas le mentionner peut poser problème.}
+
+\begin{python}
+def lire_fichier(chemin):
+  with open(chemin, "r", encoding="utf-8") as f:
+    chaine = f.read()
+  return chaine
+\end{python}
 
 Nous allons traiter simplement le jeu de données d'apprentissage en changeant le démarrage de la boucle for :
 
@@ -39,8 +53,10 @@ dic_langues = {}#pour recevoir les modèles de langue
 liste_fichiers_appr = glob.glob("corpus_multi/*/appr/*")
 print("Nombre de fichiers : %i"%len(liste_fichiers_appr)
 for chemin in liste_fichiers_appr:
-  print(chemin)#le commenter apres cette etape
-  dossiers = chemin.split("\\\\")#Sur Linux/Mac: chemin.split("/")
+  #Ligne suivante à commenter ensuite pour soulager l'affichage
+  print(chemin)
+  dossiers = chemin.split("\\\\")#Sur Windows
+  #dossiers = chemin.split("/")#Sur Linux/Mac
   langue = dossiers[1]
   ## on calcule les mots les plus frequents du texte:
   if langue not in dic_langues:
@@ -55,29 +71,34 @@ for chemin in liste_fichiers_appr:
       dic_langues[langue][m] = 1
     else:
       dic_langues[langue][m] += 1
-  print(dic_langues)#Ligne à supprimer par la suite sinon affichgae trop lourd
-  1/0#On pourrait aussi mettre un break pour sortir de la boucle
+  #Ligne suivante à commenter ensuite pour soulager l'affichage
+  print(dic_langues)
+  break# on termine la boucle
 \end{python}
+
+Une fois que vous avez observé le code ci-dessus, et qu'il fait le job, commentez les deux dernières lignes pour l'exécuter sur la totalité du corpus.
 
  Pour chaque langue du corpus, utilisez l'ensemble des textes figurant dans le dossier " appr " pour calculer un modèle de langue. Ce modèle de langue sera constitué des $n$ mots les plus fréquents identifiés dans ce sous-corpus.
 
-Pour l'étape suivante, on commente les deux print et la condition d'arrêt ($1/0$). Après la boucle on va pouvoir calculer les modèles de langue de la façon suivante :
+Pour l'étape suivante, il faut \textbf{ commenter les deux print et le \texttt{break} } afin de ne pas surcharger l'affichage. Après la boucle on va pouvoir calculer les modèles de langue de la façon suivante :
 \begin{python}
 dic_modeles = {}
 for langue, dic_effectifs in dic_langues.items():
-  paires=[[effectif, mot] for mot, effectif in  dic_effectifs.items()]
+  paires=[[effectif,mot] for mot,effectif in  dic_effectifs.items()]
   liste_tri = sorted(paires)[-10:]#les 10 mots fréquents
   dic_modeles[langue] = [mot for effectif, mot in liste_tri]
-print(dic_modeles)#à retirer dès que posible
+print(dic_modeles.keys())#liste de slangues du dictionnaire
 \end{python}
 
+NB: s'il n'y a pas plus de une langue dans dic\_modeles (print ci-dessus) c'est qu'il y a un problème dans la boucle.
 
- Enlèvez le dernier print puis sauvegardez tous ces modèles dans un unique fichier au format \textsc{Json} :
+ Sauvegardez tous ces modèles dans un unique fichier au format \textsc{Json} :
 
 \begin{python}
 import json
-with open("models.json", "w", encoding="utf-8") as w:#ici on change demode d'ouverture du fichier
-  w.write(json.dumps(dic_modeles, indent = 2))
+#ici on change de mode d'ouverture du fichier:
+with open("models.json", "w", encoding="utf-8") as w:
+  w.write(json.dumps(dic_modeles, indent = 2, ensure_ascii=False))
 \end{python}
 
 Consultez ce fichier \texttt{models.json} pour comprendre le modèle.
@@ -106,7 +127,8 @@ Puis nous allons parcourir les fichiers de test, les ouvrir et compter l'effecti
 liste_fichiers_test = glob.glob("corpus_multi/*/test/*")
 print("Nombre de fichiers : %i"%len(liste_fichiers_test)
 for chemin in liste_fichiers_test:
-  dossiers = chemin.split("\\\\")#Sur Linux/Mac: chemin.split("/")
+  dossiers = chemin.split("\\\\")#Sur Windows
+  #dossiers = chemin.split("/")#Sur Linux/Mac
   langue = dossiers[1]
   chaine = lire_fichier(chemin)
   mots = chaine.split()
@@ -118,47 +140,90 @@ for chemin in liste_fichiers_test:
       dic_freq_texte[m] += 1
   print(dic_freq_texte)
   # dic_freq_texte contient les effectifs des mots du texte
-  1/0
+  break
 \end{python}
 
-Maintenant on enlève la condition d'arrêt et on calcule les dix mots les plus fréquents du texte (attention, il y a de l'indentation, cela signifie que l'on doit toujours être dans la boucle créée ci-dessus):
+Maintenant on enlève le \texttt{break}, les \texttt{print} inutiles et on calcule les dix mots les plus fréquents du texte : 
 
 \begin{python}
-  paires=[[effectif, mot] for mot, effectif in  dic_freq_texte.items()]
+for chemin in liste_fichiers_test:
+  dossiers = chemin.split("\\\\")#Sur Windows
+  #dossiers = chemin.split("/")#Sur Linux/Mac
+  langue = dossiers[1]
+  chaine = lire_fichier(chemin)
+  mots = chaine.split()
+  dic_freq_texte = {}
+  for m in mots:
+    if m not in dic_freq_texte:
+      dic_freq_texte[m] = 1
+    else:
+      dic_freq_texte[m] += 1
+  paires=[[effectif,mot] for mot,effectif in  dic_freq_texte.items()]
   liste_tri = sorted(paires)[-10:]#les 10 mots fréquents
   plus_frequents = set([mot for effectif, mot in liste_tri])
   print(plus_frequents)
-  1/0
+  break
 \end{python}
 %  paires = [[effectif, mot] for mot, effectif in  dic_effectifs.items()]
 %  liste_tri = sorted(paires)[-10:]#les 10 mots fréquents
 %  dic_modeles[langue] = set([mot for effectif, mot in liste_tri])
 
-A nouveau, on enlève la condition d'arrêt, le print et on passe à la suite. Ici on va calculer l'\textbf{intersection} (les mots en commun) entre les mots fréquents du texte et ceux de chaque modèle de langue (comme précédemment, l'indentation est présente on est toujours dans la boucle):
+À nouveau, on enlève le \texttt{break}, les print inutiles et on passe à la suite. Ici on va calculer l'\textbf{intersection} (les mots en commun) entre les mots fréquents du texte et ceux de chaque modèle de langue :
 
 \begin{python}
+for chemin in liste_fichiers_test:
+  dossiers = chemin.split("\\\\")#Sur Windows
+  #dossiers = chemin.split("/")#Sur Linux/Mac
+  langue = dossiers[1]
+  chaine = lire_fichier(chemin)
+  mots = chaine.split()
+  dic_freq_texte = {}
+  for m in mots:
+    if m not in dic_freq_texte:
+      dic_freq_texte[m] = 1
+    else:
+      dic_freq_texte[m] += 1
+  paires=[[effectif,mot] for mot,effectif in  dic_freq_texte.items()]
+  liste_tri = sorted(paires)[-10:]#les 10 mots fréquents
+  plus_frequents = set([mot for effectif, mot in liste_tri])
+
   print("Document en %s"%langue)
   for langue_ref, model in dic_models.items():
     mots_communs = set(model).intersection(plus_frequents)
     print("%i mots en commun avec le modèle (%s):"
 %(len(mots_communs), langue_ref))
     print(mots_communs)
-  1/0
+  break
 \end{python}
 
-Maintenant on va chercher automatiquement l'intersection la plus grande et vérifier si ça correspond à notre intuition (toujours dans la boucle):
+Maintenant on va chercher automatiquement l'intersection la plus grande et vérifier si ça correspond à notre intuition. On finit de compléter notre boucle:
 
 \begin{python}
+for chemin in liste_fichiers_test:
+  dossiers = chemin.split("\\\\")#Sur Windows
+  #dossiers = chemin.split("/")#Sur Linux/Mac
+  langue = dossiers[1]
+  chaine = lire_fichier(chemin)
+  mots = chaine.split()
+  dic_freq_texte = {}
+  for m in mots:
+    if m not in dic_freq_texte:
+      dic_freq_texte[m] = 1
+    else:
+      dic_freq_texte[m] += 1
+  paires=[[effectif,mot] for mot,effectif in  dic_freq_texte.items()]
+  liste_tri = sorted(paires)[-10:]#les 10 mots fréquents
+  plus_frequents = set([mot for effectif, mot in liste_tri])
   liste_predictions = []
   print("Document en %s"%langue) 
   for langue_ref, model in dic_models.items():
     mots_communs = set(model).intersection(plus_frequents)
     NB_mots_communs = len(mots_communs)
     liste_predictions.append([NB_mots_communs, langue_ref])
-    print(sorted(liste_predictions))
+    print(sorted(liste_predictions, reverse=True)[:3])
 \end{python}
 
-A vous maintenant de faire la suite : extraire la prédiction majoritaire puis passer à la section suivante : l'évaluation.
+A vous maintenant de faire la suite : extraire la prédiction majoritaire (la première qui apparaît avec la fonction \texttt{sorted}\footnote{Par souci de simplicité, on ne fait pas d'exception pour les cas où deux langues arriveraient \textit{ex-aequo} }) puis passer à la section suivante : l'évaluation.
 
 \vspace{0.5cm}
 \exer{Evaluer le diagnostic}
@@ -182,7 +247,7 @@ Dans un premier temps nous utiliserons l'\textbf{exactitude} c'est à dire la pr
 
 
 Dans un deuxième temps, nous utiliserons le Rappel qui permet de vérifier que l'on a bien classé tous les documents d'une même langue ainsi que la Précision qui évalue combien de documents sont classés dans la bonne langue. 
- Il s'agit donc de calculer le nombre de Vrais Positifs (VP), Faux Positifs (FP) et Faux Négatifs (FN).
+ Il s'agit donc de calculer le nombre de Vrais Positifs (VP), Faux Positifs (FP) et Faux Négatifs (FN) \textbf{et ce pour chaque langue}.
 
 Pour chaque document traité à l'exercice précédent nous allons comptabiliser nos VP, nos FP et nos FN.
  Nous pourrons ainsi pour chaque langue calculer :
@@ -192,16 +257,38 @@ Pour chaque document traité à l'exercice précédent nous allons comptabiliser
 \item la F$_1$-mesure (moyenne harmonique du rappel et de la précision) : (2*Rappel*Précision) / (Précision+Rappel)
 \end{itemize}
 
+Cela signifie que l'on aura un dictionnaire dans lequel pour chaque langue on comptabilisera le nombre de VP, FP et FN. Sa structure sera donc de la forme suivante:
+\begin{python}
+dic_resultats= {
+  "fr":{"VP":0, "FP":0, "FN":0},
+  "en":{"VP":0, "FP":0, "FN":0}
+  #.... et ainsi de suite
+}
+\end{python}
+
+\textbf{Astuce} vous pouvez ajouter les langues de manière dynamique dans la boucle en ajoutant au fur et à mesure les langues que vous traitez, en schématique : 
+
+\begin{python}
+
+dic_resultats= {}
+#....
+
+for chemin in liste_fichiers_test:
+  # ici le code pour avoir "langue" la langue du document
+  # ici le code pour avoir "langue_pred" la langue predite
+  # setdefault(cle, valeur) cree une valeur par defaut pour cle 
+  dic_resultats.setdefault(langue, {"VP":0, "FP":0, "FN":0})
+  dic_resultats.setdefault(langue_pred, {"VP":0, "FP":0, "FN":0})
+\end{python}
+
 Ensuite, vous comparerez les résultats selon le nombre $n$ de mots fréquents pris en considération et vous identifierez les erreurs les plus fréquentes: couples de langues qui posent problème et documents pour lesquelles la prédiction en plus d'être fausse est étrange (normalement vous avez un document en bulgare pour lequel la prédiction est "anglais", il faudra aller voir pourquoi).
 
 \textbf{Vous verrez que pour se faciliter la tâche, on aura intérêt à en faire des fonctions :}
 
 \begin{itemize}
-  \item Une qui prend en entrée un texte et retourne la prédiction
-  \item Une qui prend en entrée une liste de prédictions de langues et la liste des langues réelles et qui les compare pour calculer exactitude, rappel, précision et F-mesure 
+  \item fonction \texttt{predire\_langue} qui prend en entrée un texte et retourne la langue prédite pour ce texte
+  \item focntion \texttt{evaluer} qui prend en entrée une liste de prédictions de langues, la liste des langues réelles et calcule exactitude, rappel, précision et F-mesure 
 \end{itemize}
-
-Déposez avant le 22/10 minuit votre code qui réalise cette étape là.
 
 \vspace{0.5cm}
 \exer{Et en caractères?}
@@ -219,7 +306,7 @@ Vous rédigerez 2 pages décrivant vos résultats à l'issue de la séance.
 
 
 \vspace{0.5cm}
-\exer{Exercice bonus : avec du \textit{Machine Learning}}
+\exer{Exercice bonus : avec du \textit{Machine Learning} }
 \vspace{0.5cm}
 
 
@@ -274,7 +361,9 @@ y_test  = classes["test"]
 from sklearn.naive_bayes import GaussianNB
 gnb = GaussianNB()
 y_pred = gnb.fit(X_train, y_train).predict(X_test)
-print("Erreurs d'étiquetage sur %d textes : %d"% (X_test.shape[0], (y_test != y_pred).sum()))
+NB_textes  = X_test.shape[0]
+NB_erreurs = y_test != y_pred).sum()
+print("Erreurs d'étiquetage sur %d textes : %d"%(NB_textes, NB_erreurs))
 
 from sklearn.metrics import classification_report
 print(classification_report(y_test, y_pred))
