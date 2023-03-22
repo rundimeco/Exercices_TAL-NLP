@@ -2,13 +2,13 @@ Ce dépôt vise à rassembler des supports de cours pouvant faire office de tuto
 
 Ils n'ont pas vocation à constituer des approches état de l'art ni des manières optimales de programmer (que ce soit en temps de calcul ou en organisation du code). Par contre ils ont été conçus pour :
 
-- Constituer des approches simples (ou baselines)
+- Proposer des approches simples (ou baselines)
 - Aider à la décomposition de problèmes
 - Permettre d'identifier des verrous
 - Évaluer (automatiquement ou visuellement) ces approches
 
 
-A ce stade, les données sont en PDF (avec les sources en tex) ainsi que le notebook associé (dans le dossier ressources).
+Pour chaque thème il y a un PDF (avec les sources en tex) ainsi que le notebook associé (qui figure dans le dossier ressources).
 
 Thèmes abordés :
 
