@@ -8,7 +8,7 @@ Ils n'ont pas vocation à constituer des approches état de l'art ni des manièr
 - Évaluer (automatiquement ou visuellement) ces approches
 
 
-A ce stade, les données sont en PDF (avec les sources en tex), à terme des notebooks seront directement proposés.
+A ce stade, les données sont en PDF (avec les sources en tex) ainsi que le notebook associé (dans le dossier ressources).
 
 Thèmes abordés :
 
@@ -19,6 +19,7 @@ Thèmes abordés :
 
 - Méthodes/Approches : Jacques Vergne, Emmanuel Giguet
 - Données/Corpus : Romain Brixtel, Charlotte Lecluze
-- Amélioration des supports : Tian Tian, Carlos Gonzales, Andrea Briglia, Antoine Lebrun
+- Amélioration des supports dans le cadre des cours : Tian Tian, Carlos Gonzales, Andrea Briglia, Antoine Lebrun
+- Corrections et Conseils : Tiago André De Carvalho Béné 
 
 
