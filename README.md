@@ -1,5 +1,7 @@
 # Exercices pour le TAL 
 
+**Dépôt en cours de réorganisation** Plusieurs contenus sont en cours de "toilettage", me contacter si des choses intéressantes manquent dans leur ancienne version.
+
 Ce dépôt vise à rassembler des supports de cours sur différentes tâches de TAL (ou NLP pour ceux qui préfèrent les anglicismes). 
 Ils peuvent être utilisés à différents niveau toutefois une indication rapide sur le niveau attendu figure dans ce README. Ils peuvent aussi servir de tutoriels.
 
@@ -20,7 +22,7 @@ Thèmes abordés :
  - listes et dictionnaires
  - Boucle for et instructions conditionnelles
  - Lecture et écriture de fichiers
-2. To be continued
+2. To be reorganized
 
 ## Remerciements
 
