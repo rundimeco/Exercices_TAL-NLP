@@ -1,0 +1,109 @@
+
+\begin{frame}{Objectifs du jour}
+\begin{itemize}
+  \item Mesures de base en classification en TAL : précision, rappel, F-mesure (F$_1$, F$_\beta$)
+	  \pause
+  \item Mesures de base en RI/ordonnancement : Précision@k, Rappel@k, AP, MAP, DCG / \textbf{nDCG}
+	  \pause
+  \item Comprendre l'intérêt \textbf{Montrer les limites} de chaque métrique
+  \item Lien : du binaire (instance-level) au graduel et ordonné (ranking)
+\end{itemize}
+\end{frame}
+
+\section{Mesures traditionnelles en TAL/classification}
+
+\begin{frame}{Matrice de confusion (binaire)}
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+ & Prédit + & Prédit - \\
+\midrule
+Réel + & VP & FN \\
+Réel - & FP & VN \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.6em}
+$P=\frac{VP}{VP+FP}$, \quad $R=\frac{VP}{VP+FN}$, \quad $F_1=2\frac{PR}{P+R}$.
+\end{frame}
+
+\begin{frame}{Limites (NLP)}
+\begin{itemize}
+  \item \textbf{Accuracy} trompeuse sur classes déséquilibrées (F1 préférable).
+  \item \textbf{Seuil} $\Rightarrow$ compromis précision/rappel (même F1, profils d'erreurs différents).
+	  \pause
+  \item F1 ignore les \textbf{VN} et le \textbf{coût} asymétrique des erreurs (parfois préférer F$_\beta$).
+	  \pause
+  \item \textbf{Macro} vs \textbf{Micro} : interprétations différentes.
+\end{itemize}
+\end{frame}
+
+\section{Mesures en Recherche d'Information (RI)}
+
+\begin{frame}{Spécificités de la RI}
+Sortie = \textbf{classement} + \textbf{pertinence} (binaire ou graduelle). Position $\Rightarrow$ utilité.
+\end{frame}
+
+\begin{frame}{Mesures principales}
+\begin{itemize}
+  \item \textbf{P@k}, \textbf{R@k} : qualité sur le top-$k$
+  \item \textbf{AP} (binaire) et \textbf{MAP} (moyenne multi-requêtes)
+  \item \textbf{DCG}/\textbf{nDCG} : pertinence graduelle + \textit{discount} par rang
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Limites (RI)}
+\begin{itemize}
+  \item P@k sensible au \textbf{cutoff} $k$
+  \item R@k dépend du \textbf{pool} de pertinents (jugements incomplets)
+  \item MAP masque la \textbf{variance} entre requêtes
+  \item nDCG sensible au \textbf{gain} (linéaire vs exponentiel) et au \textbf{cutoff}
+\end{itemize}
+\end{frame}
+
+\section{Passer par le visuel}
+
+\begin{frame}{Courbe PR (classification)}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{parts/pr_curve.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Courbe ROC (classification)}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{parts/roc_curve.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Multiclasse : erreurs et déséquilibre}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{parts/multiclass_confusion.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{nDCG : gain linéaire vs exponentiel}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{parts/ndcg_compare.png}
+\end{figure}
+\end{frame}
+
+\input{parts/ndcg}
+
+\section{Synthèse}
+
+\begin{frame}{Quel indicateur pour quel usage ?}
+\begin{itemize}
+  \item \textbf{Filtrage strict} : précision élevée (F$_\beta$, $\beta<1$), PR-curve.
+	  \pause
+  \item \textbf{Veille signaux faibles} : rappel prioritaire (F$_\beta$, $\beta>1$), AP (classification).
+	  \pause
+  \item \textbf{Recherche Info} : P@k, nDCG@k (petits $k$), Mean Average Precision.
+%  \item \textbf{Reporting} : plusieurs $k$, macro/micro, distribution des AP, seeds/splits.
+\end{itemize}
+\end{frame}
+

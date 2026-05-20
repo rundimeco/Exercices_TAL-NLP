@@ -1,0 +1,311 @@
+
+\documentclass[10pt]{beamer}
+
+\usetheme{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage[utf8]{inputenc}
+\usepackage[russian,francais]{babel}
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+\usepackage{pdfpages}
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{diagbox}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{subcaption}
+\usepackage{xspace}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+\title{M3SOL025 - Comparer des Textes}
+\date{2025-2026}
+\author{Gaël Lejeune \quad {gael.lejeune@sorbonne-universite.fr}}
+\institute{STIH EA 4509, CERES, Sorbonne Université}
+ \titlegraphic{\hfill\includegraphics[height=.7cm]{../images/sorbon.png}}
+\begin{document}
+\maketitle
+
+
+%------------------------------------------------
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Objectifs du cours}
+  \begin{itemize}
+    \item Comprendre pourquoi on mesure la distance / similarité entre textes.
+    \item Connaître les principales tâches : traduction, résumé, OCR/HTR, Web scraping...
+    \item Découvrir plusieurs familles de métriques :
+    \begin{itemize}
+      \item Distances caractère / mot (CER, WER, Levenshtein)
+      \item Basées sur les n-grammes (BLEU, ROUGE)
+      \item Basées sur des vecteurs (cosinus, embeddings)
+    \end{itemize}
+    \item Manipuler ces métriques dans un notebook Python.
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\section{Motivation et tâches}
+
+\begin{frame}{Pourquoi mesurer la distance entre textes ?}
+  \begin{itemize}
+    \item Évaluer des systèmes automatiques :
+      \begin{itemize}
+        \item Traduction automatique (MT)
+        \item Résumé automatique
+        \item OCR/HTR (reconnaissance de texte)
+        \item Extraction Web / Web scraping
+        \item Génération de texte (LLM, chatbots)
+      \end{itemize}
+    \item Détecter des similarités :
+      \begin{itemize}
+        \item Plagiat
+        \item Doublons de documents
+        \item Clustering / classification
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Panorama des tâches}
+  \begin{itemize}
+    \item \textbf{Traduction automatique} : comparer la traduction générée à une ou plusieurs références humaines.
+    \item \textbf{Résumé automatique} : comparer un résumé généré au résumé humain (couverture de l'information).
+    \item \textbf{OCR/HTR} : comparer le texte reconnu à la transcription de référence.
+    \item \textbf{Web scraping} : vérifier que le texte extrait correspond bien à la source.
+    \item \textbf{Détection de similarité/plagiat} : mesurer la proximité de deux documents.
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\section{Distances sur la chaîne de caractères}
+
+\begin{frame}{Distance de Levenshtein}
+  \begin{itemize}
+    \item Mesure le \textbf{nombre minimal d'opérations d'édition} pour transformer une chaîne A en B :
+    \begin{itemize}
+      \item insertion
+      \item suppression
+      \item substitution
+    \end{itemize}
+    \item Peut être normalisée pour donner un score dans [0,1].
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Exemple (simplifié)} :
+  \begin{itemize}
+    \item Référence : \texttt{chat}
+    \item Hypothèse : \texttt{chats}
+    \item Distance de Levenshtein = 1 (insertion de \texttt{s})
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{CER : Character Error Rate}
+  \begin{itemize}
+    \item Utilisé pour l'évaluation de l'OCR/HTR, ASR…
+    \item Définition :
+  \end{itemize}
+  \[
+    CER = \frac{S + D + I}{N}
+  \]
+  où :
+  \begin{itemize}
+    \item $S$ = nombre de substitutions
+    \item $D$ = nombre de suppressions (deletions)
+    \item $I$ = nombre d'insertions
+    \item $N$ = nombre de caractères dans la référence
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Exemple illustré} :
+
+  Référence : \texttt{bonjour} \\
+  Hypothèse : \texttt{bonjur}
+
+  \begin{itemize}
+    \item \texttt{o} $\rightarrow$ \texttt{u} : 1 substitution
+    \item $N = 7$ caractères
+    \item CER $= \frac{1}{7} \approx 0{,}14$
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{WER : Word Error Rate}
+  \begin{itemize}
+    \item Même principe que CER mais au niveau des mots.
+    \item Définition :
+  \end{itemize}
+  \[
+    WER = \frac{S + D + I}{N}
+  \]
+  où $N$ est le nombre de mots de la référence.
+
+  \vspace{0.3cm}
+  \textbf{Exemple illustré} :
+
+  Référence : \texttt{je vais à l'école} \\
+  Hypothèse : \texttt{je vais à école}
+
+  \begin{itemize}
+    \item Suppression de \texttt{l'} : $D = 1$
+    \item $N = 4$ mots
+    \item WER $= \frac{1}{4} = 0{,}25$
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\section{Métriques à base de n-grammes}
+
+\begin{frame}{BLEU : Bilingual Evaluation Understudy}
+  \begin{itemize}
+    \item Utilisé principalement pour la \textbf{traduction automatique}.
+    \item Compare les n-grammes (1-gram, 2-gram, etc.) de la sortie modèle à ceux de la traduction de référence.
+    \item Idée : plus le chevauchement de n-grammes est grand, meilleure est la traduction.
+    \item Intègre une \textbf{brevity penalty} pour éviter les traductions trop courtes.
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Exemple simplifié de BLEU (unigrammes)}
+  \textbf{Référence} : \\
+  \texttt{le chat dort sur le canapé}
+
+  \vspace{0.2cm}
+  \textbf{Hypothèse 1} : \\
+  \texttt{le chat dort}
+
+  \vspace{0.2cm}
+  \textbf{Hypothèse 2} : \\
+  \texttt{le chien court dans le jardin}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item Hypothèse 1 : beaucoup d'unigrammes en commun (\texttt{le, chat, dort})
+    \item Hypothèse 2 : très peu d'unigrammes en commun (\texttt{le} seulement)
+    \item BLEU(H1) >> BLEU(H2)
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{ROUGE : Résumé automatique}
+  \begin{itemize}
+    \item ROUGE-N : chevauchement de n-grammes entre le résumé généré et le résumé de référence.
+    \item ROUGE-L : longueur de la plus longue sous-séquence commune (LCS).
+    \item Utilisé pour évaluer la \textbf{couverture d'information} d'un résumé.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Exemple (idée)} :  
+  \begin{itemize}
+    \item Référence : mentionne 5 faits importants.
+    \item Résumé système : en couvre seulement 3.
+    \item ROUGE reflète ce niveau de rappel.
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\section{Similarité vectorielle (cosinus)}
+
+\begin{frame}{Similarité cosinus (TF-IDF, embeddings)}
+  \begin{itemize}
+    \item Représenter chaque texte comme un \textbf{vecteur} :
+    \begin{itemize}
+      \item sac de mots (bag-of-words)
+      \item TF-IDF
+      \item vecteurs sémantiques (BERT, SBERT, etc.)
+    \end{itemize}
+    \item Mesurer l'angle entre les deux vecteurs : similarité cosinus.
+  \end{itemize}
+
+  \[
+    \cos(\theta) = \frac{\vec{A} \cdot \vec{B}}{\|\vec{A}\|\|\vec{B}\|}
+  \]
+
+  \begin{itemize}
+    \item 1 : textes très proches
+    \item 0 : textes orthogonaux (sans rapport)
+    \item -1 : opposés (cas rare en pratique)
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Exemple intuitif : similarité cosinus}
+  \textbf{Texte A} : \texttt{Le chat dort sur le canapé.} \\
+  \textbf{Texte B} : \texttt{Le canapé est occupé par un chat qui dort.} \\
+  \textbf{Texte C} : \texttt{La voiture roule vite sur l'autoroute.}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item A et B : vocabulaire similaire, même thème $\Rightarrow$ cosinus élevé.
+    \item A et C : vocabulaire très différent $\Rightarrow$ cosinus faible.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Application} :
+  \begin{itemize}
+    \item détection de doublons
+    \item comparaison de textes scrappés
+    \item recherche d'information (retrieval)
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\section{Résumé et comparaison}
+
+\begin{frame}{Résumé : quelle métrique pour quelle tâche ?}
+  \begin{center}
+  \begin{tabular}{ll}
+    \toprule
+    Tâche & Métriques typiques \\
+    \midrule
+    Traduction & BLEU, METEOR, TER, COMET \\
+    Résumé & ROUGE-N, ROUGE-L, BERTScore \\
+    OCR/HTR & CER, WER, Levenshtein \\
+    Web scraping & Levenshtein, Jaccard, cosinus TF-IDF \\
+    Similarité / plagiat & Cosinus TF-IDF, embeddings \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Limites des métriques automatiques}
+  \begin{itemize}
+    \item BLEU/ROUGE : sensibles à la forme lexicale, pas toujours au sens profond.
+    \item Cosinus TF-IDF : ne capture pas bien la synonymie ou la paraphrase.
+    \item Les métriques automatiques ne remplacent pas l'évaluation humaine :
+      \begin{itemize}
+        \item cohérence globale
+        \item factualité (hallucinations)
+        \item style, registre
+      \end{itemize}
+    \item Bonne pratique : \textbf{combiner plusieurs métriques} + évaluation humaine.
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}{Travaux pratiques (notebook Python)}
+  \begin{itemize}
+    \item Calculer CER/WER sur des sorties OCR.
+    \item Calculer BLEU pour des traductions.
+    \item Calculer ROUGE pour des résumés.
+    \item Calculer la similarité cosinus (TF-IDF) pour comparer deux pages Web scrappées.
+    \item (Optionnel) Tester des embeddings pour la similarité sémantique.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \centering
+  \textbf{Voir le notebook associé pour les exemples de code.}
+\end{frame}
+
+
+\end{document}
+

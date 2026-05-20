@@ -22,13 +22,19 @@ Thèmes abordés :
  - listes et dictionnaires
  - Boucle for et instructions conditionnelles
  - Lecture et écriture de fichiers
-2. To be reorganized
+2. Dossier Evaluation : série d'exercices et de CM pour comprendre l'évaluation en TAL
+- quelles mesures pour quelles tâches ?
+- quels biais ?
+3. Pre_processing.pdf (ou pre_traitement.pdf en français) : évaluer l'intérêt du pre-processing par l'évaluation
+- Pourquoi fait-on du pre-processing ?
+- Comment vérifier qu'il est utile/efficace
+- Questionner l'obsession pour cette phase en regard de son impact réel
 
 ## Remerciements
 
-- Méthodes/Approches : Jacques Vergne, Emmanuel Giguet
+- Méthodes/Approches/Idées : Jacques Vergne, Emmanuel Giguet, Karën Fort
 - Données/Corpus : Romain Brixtel, Charlotte Lecluze
-- Amélioration des supports dans le cadre des cours : Tian Tian, Carlos Gonzales, Andrea Briglia, Antoine Lebrun
-- Corrections et Conseils : Tiago André De Carvalho Béné 
+- Amélioration des supports dans le cadre des cours : Tian Tian, Carlos Gonzales, Andrea Briglia, Antoine Lebrun, Caroline Koudoro-Parfait
+- Corrections et Conseils : Tiago André De Carvalho Béné , Marceau Hernandez
 
 
